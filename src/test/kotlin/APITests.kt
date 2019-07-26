@@ -35,9 +35,9 @@ class ApiTests {
     @Test
     fun verifyFirstIdUserNameIsGeorge()
     {
-        verifyUserWithIdHasRequiredName(1,"George")
-        verifyUserWithIdHasRequiredName(2,"Janet")
-        verifyUserWithIdHasRequiredName(3,"Emma")
+        verifyUserWithIdHasRequiredName(1,"George","Bluth")
+        verifyUserWithIdHasRequiredName(2,"Janet", "Weaver")
+        verifyUserWithIdHasRequiredName(3,"Emma","Wong")
     }
     // валидация структуры объекта data в респонзе (т.е. что все обязательные поля всегда
     // присутствуют. Мы полагаем, что все поля mandatory)
@@ -49,12 +49,14 @@ class ApiTests {
             verifyJsonDataObjectHasAllRequiredFieldsWithId(id)
     }
     // Параметризированные методы
-    // Нахождение пользователи по id и проверка соответствия
-    fun verifyUserWithIdHasRequiredName(id: Int, first_name: String)
+    // Нахождение пользователи по id и проверка соответствия (имени и фамилии)
+    fun verifyUserWithIdHasRequiredName(id: Int, first_name: String, last_name: String)
     {
         RestAssured.`when`().get(ROOT_API_URL + PAGE_NUMBER)
                 .then().assertThat().statusCode(200)
-                .and().body("data.find {it.id == $id}.first_name",  `is`(first_name))
+                .and()
+                .body("data.find {it.id == $id}.first_name",  `is`(first_name))
+                .body("data.find {it.id == $id}.last_name",  `is`(last_name))
     }
     // Проверка что у записи Х присутсвуют все требуемые поля
     fun verifyJsonDataObjectHasAllRequiredFieldsWithId(id: Int)
