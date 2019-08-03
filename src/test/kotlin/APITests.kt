@@ -4,13 +4,13 @@
 package tests
 
 import io.restassured.RestAssured
+import io.restassured.path.json.JsonPath
 import net.serenitybdd.junit.runners.SerenityRunner
+import org.hamcrest.Matchers.*
 import org.junit.Test
 
-import org.hamcrest.Matchers.`is`
-import org.hamcrest.Matchers.hasKey
-
 import org.junit.runner.RunWith
+import kotlin.test.assertEquals
 
 const val ROOT_API_URL = "https://reqres.in/api/users?page="
 const val PAGE_NUMBER = 1
@@ -68,5 +68,25 @@ class ApiTests {
                 .body("data[$id]",  hasKey("email"))
                 .body("data[$id]",  hasKey("first_name"))
                 .body("data[$id]",  hasKey("last_name"))
+    }
+
+    @Test
+    fun verifyUsersNumber()
+    {
+        var totalUsers = 0
+        var totalExpectedUsers = getValueFromResponse(1,"total")
+        var pages = getValueFromResponse(1,"total_pages")
+
+        for(page in 1 until pages + 1)
+        {
+            totalUsers += getValueFromResponse(page,"data.size()")
+        }
+
+        assertEquals(totalUsers,totalExpectedUsers)
+    }
+    fun getValueFromResponse(page:Int, field: String): Int
+    {
+        var response = RestAssured.`when`().get(ROOT_API_URL + page)
+        return JsonPath.from(response!!.asString()).getInt(field)
     }
 }
